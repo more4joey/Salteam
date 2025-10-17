@@ -1,0 +1,79 @@
+#include <Servo.h>
+
+Servo gripservo;
+Servo rotateservo;
+Servo forwardservo;
+Servo downservo;
+
+//Gripper positions
+int closePos = 180;  // adjust this if your servo's "open" position is different
+int openPos = 0;     // adjust this if your servo's "closed" position is different
+
+// Rotation position
+int rotatePos = 20;  // Start at center
+
+//Forward position
+int forwardPos = 0;  // Start at 0 degrees
+
+//Down position
+int downPos = 50;
+int upPos = 110;
+
+String command = "";
+
+void setup() {
+  Serial.begin(57600);
+  gripservo.attach(2);    // Grip servo on pin 3
+  rotateservo.attach(3);  // Rotation servo on pin 3
+  forwardservo.attach(4);
+  downservo.attach(5);
+
+  gripservo.write(openPos);
+  rotateservo.write(rotatePos);
+  forwardservo.write(forwardPos);
+  downservo.write(upPos);
+}
+
+void loop() {
+
+    if (Serial.available() > 0) {
+      command = Serial.readStringUntil('\n');
+      command.trim();  // remove any extra spaces or line breaks
+
+      if (command.equalsIgnoreCase("release")) {
+        gripservo.write(openPos);
+      } 
+
+      else if (command.equalsIgnoreCase("grip")) {
+        gripservo.write(closePos);
+      } 
+
+      else if (command.equalsIgnoreCase("turn")) {
+        // Rotate 20 degrees from current position
+        rotatePos += 20;
+        if (rotatePos > 180) rotatePos = 0;  // Wrap around
+        rotateservo.write(rotatePos);
+        Serial.print(rotatePos);
+      } 
+      
+      else if (command.equalsIgnoreCase("forward")) {
+        forwardPos += 30;
+        if (forwardPos > 90) forwardPos = 0;
+        forwardservo.write(forwardPos);
+        Serial.print(forwardPos);
+      } 
+      
+      else if(command.equalsIgnoreCase("down")){
+        downservo.write(downPos);
+        delay(200);
+        //Serial.print(downPos);
+      } 
+      
+      else if(command.equalsIgnoreCase("up")){
+        //downPos-=20;
+        //if(downPos<50) downPos=90;
+        downservo.write(upPos);
+        //Serial.print(downPos);
+      }
+  }
+}  
